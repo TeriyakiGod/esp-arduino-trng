@@ -47,17 +47,9 @@ void webSocketEvent(WStype_t type, uint8_t * payload, size_t length) {
 
 // Function to send TRNG data in binary format over WebSocket
 void sendTRNGDataBinary() {
-  uint32_t randomValue = esp_random();  // Generate random number from the ESP32 TRNG
-  uint8_t binaryData[4];
-  
-  // Split the 32-bit random value into 4 bytes
-  binaryData[0] = (randomValue >> 24) & 0xFF;
-  binaryData[1] = (randomValue >> 16) & 0xFF;
-  binaryData[2] = (randomValue >> 8) & 0xFF;
-  binaryData[3] = randomValue & 0xFF;
 
-  // Send the 4-byte binary data as a WebSocket message
-  webSocket.sendBIN(binaryData, sizeof(binaryData));
+
+  // Send the 32-bit random value as binary data
 }
 
 void setup() {
@@ -80,19 +72,11 @@ void setup() {
 
 void loop() {
   webSocket.loop();  // Maintain WebSocket connection
-  
   // Check if WiFi is still connected
   if (WiFi.status() != WL_CONNECTED) {
     Serial.println("WiFi lost connection, reconnecting...");
     connectToWiFi();
   }
-
-  // Send data periodically
-  unsigned long currentMillis = millis();
-  if (currentMillis - previousMillis >= sendInterval) {
-    previousMillis = currentMillis;
-    if (webSocket.isConnected()) {
-      sendTRNGDataBinary();
-    }
-  }
+  // Generate random number and send over websocket
+  webSocket.sendBIN((uint8_t*)&esp_random(), sizeof(randomValue));
 }
