@@ -78,5 +78,6 @@ void loop() {
     connectToWiFi();
   }
   // Generate random number and send over websocket
-  webSocket.sendBIN((uint8_t*)&esp_random(), sizeof(randomValue));
+  uint32_t randomValue = esp_random();
+  webSocket.sendBIN((uint8_t*)&randomValue(), sizeof(randomValue));
 }
